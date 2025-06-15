@@ -79,8 +79,8 @@ def choice_aud(pix, url):   # Download audio
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
-        text=True   # → Jika ingin memunculkann informasi, rubah
-    )               # DEVNULL menjadi PIPE ~Fenrix
+        text=True
+    )
     return aud
 
 
@@ -105,8 +105,8 @@ def choice_tum(pix, url):   # Download gambar
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
-        text=True   # → Jika ingin memunculkann informasi, rubah
-    )               # DEVNULL menjadi PIPE ~Fenrix
+        text=True
+    )
     return tum
 
 
@@ -117,8 +117,8 @@ def scan(loc):  # Perlu install termux-api → (pkg install termux-api)
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
-        text=True   # → Jika ingin memunculkann informasi, rubah
-    )               # DEVNULL menjadi PIPE ~Fenrix
+        text=True
+    )
     print("")
     print(g + "\nDownload complete.." + R)
     return cek
@@ -313,7 +313,7 @@ elif user == "3":    # download audio
         print(thx)
         exit()
 
-elif user == "4":  # Nggak penting, Yang penting informasi (•_•) ~Fenrix
+elif user == "4":
     print(
     "• Information: \nPengunduhan video short masih belum optimal "
     "dan masih dalam tahap improvisasi\n"
@@ -321,5 +321,7 @@ elif user == "4":  # Nggak penting, Yang penting informasi (•_•) ~Fenrix
     "lalu tekan enter. Hanya itu saja!\n"
     "~Fenrix")
 
-elif user == "5":    # Hanya beberapa orang yg mengetahui
-    os.system(f"yt-dlp -F {url}")
+elif user == "5":
+    subprocess.run(
+    ["yt-dlp", "-F", f"{url}"]
+    )
