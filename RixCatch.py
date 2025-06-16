@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 import time
 import subprocess
 import threading
@@ -49,11 +48,11 @@ def choice_vid(pix, url):   # Download video
                          f"+bestaudio[ext=m4a]",
         "--embed-thumbnail", "--embed-metadata",
         "-P", "~/storage/shared/DCIM/Video", f"{url}"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         stdin=subprocess.DEVNULL,
-        text=True   # → Jika ingin memunculkann informasi, rubah
-    )               # DEVNULL menjadi PIPE ~Fenrix
+        text=True
+    )
     return vid
 
 
@@ -76,8 +75,8 @@ def choice_aud(pix, url):   # Download audio
         "--audio-format=mp3", f"--audio-quality={pix}",
         "--embed-thumbnail", "--embed-metadata", "-P",
         "~/storage/shared/YMusic", f"{url}"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         stdin=subprocess.DEVNULL,
         text=True
     )
@@ -102,8 +101,8 @@ def choice_tum(pix, url):   # Download gambar
         ["yt-dlp", "--skip-download", "--write-thumbnail",
         f"--convert-thumbnail={pix}", "-P",
         "~/storage/shared/DCIM/Thumbnail", f"{url}"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         stdin=subprocess.DEVNULL,
         text=True
     )
@@ -119,9 +118,36 @@ def scan(loc):  # Perlu install termux-api → (pkg install termux-api)
         stdin=subprocess.DEVNULL,
         text=True
     )
-    print("")
-    print(g + "\nDownload complete.." + R)
     return cek
+
+
+def cek_err(prob):
+    obt = 0
+    net = [
+            "urlopen error", "unsupported url", "connection reset "
+            "by peer", "104", "connection aborted", "remotedisconnected"
+    ]
+    rsp = "\n\nTerjadi kesalahan pada proses pengunduhan!"
+
+    if any(n in prob.lower() for n in net):
+        print(rsp)
+        obt += 1
+        print(f"\nSelesai dengan {str(obt)} kesalahan\n")
+
+    else:
+        print(f"\n\nSelesai dengan {str(obt)} kesalahan\n")
+
+def start_loading(proc):
+    global done
+    done = False
+    t = threading.Thread(target=loading, args=(proc,))
+    t.start()
+    return t
+
+def stop_loading(thread):
+    global done
+    done = True
+    thread.join()
 
 
 vid_opt = {"pilihan": {"[1]": "4K UHD", "[2]": "2K QHD",
@@ -156,15 +182,18 @@ print(g + "\nInformation: " + R + "Tool ini adalah versi "
 time.sleep(0.5)
 
 print(r + pyfiglet.figlet_format("RixCatch", font="smslant") + R)
-print("_"* 25, "v.7.05.08")
+print("_" * 25, "v.7.05.08")
 print(g + "\nPeringatan!: " + R + "Script ini Masih butuh "
       "debugging & banyak asupan kopi!")
 
 loc_sto = Path.home() / "storage"
 loc_aud = Path.home() / "storage/shared/YMusic"
+done = False    # ← Jangan dihapus, jaga jaga error
 
 if not loc_sto.exists():
-    os.system("termux-setup-storage")
+    subprocess.run(
+    ["termux-setup-storage"]
+    )
 
 for folder in["Video", "Thumbnail"]:
     path = Path.home() / f"storage/shared/DCIM/{folder}"
@@ -175,9 +204,7 @@ loc_aud.mkdir(parents=True, exist_ok=True)
 print(m + "\n⟩——URL——⟨" + R)
 url = input("")
 print("")
-done = False
-t = threading.Thread(target=loading, args=("[?] Mencari..",))
-t.start()
+t = start_loading("[?] Mencari..")
 search = subprocess.run(
     ["yt-dlp", "--get-filename", "-o", "%(title)s", url],
     stdout=subprocess.PIPE,
@@ -186,14 +213,12 @@ search = subprocess.run(
     text=True
     )
 
-done = True
-t.join()
+stop_loading(t)
 time.sleep(0.3)
 title = search.stdout.strip()
 if not title:
-    print("")
     print(
-    r + "\nUps! Sepertinya ada masalah. Cek URL yang Anda masukkan "
+    r + "\n\nUps! Sepertinya ada masalah. Cek URL yang Anda masukkan "
     "atau coba lagi nanti.\n" + R)
     exit()  # ← Jangan dihapus
 
@@ -221,13 +246,11 @@ if user == "1":   # download thumbnail
 
     user_pref = tum_frm()
     user_slct = choice_tum(user_pref, url)
-    done = False
-    t = threading.Thread(target=loading, args=("[↓] Mengunduh..",))
-    t.start()
-    user_slct.wait()
-    done = True
-    t.join()
+    t = start_loading("[↓] Mengunduh..")
+    out, err = user_slct.communicate()
+    stop_loading(t)
     scan("DCIM/Thumbnail")
+    e = cek_err(err)
 
 
 elif user == "2":   # download video
@@ -242,13 +265,11 @@ elif user == "2":   # download video
     if response.lower() == "n":
         i = "2160"
         user_slct = choice_vid(i, url)
-        done = False
-        t = threading.Thread(target=loading, args=("[↓] Mengunduh..",))
-        t.start()
-        user_slct.wait()
-        done = True
-        t.join()
+        t = start_loading("[↓] Mengunduh..")
+        out, err = user_slct.communicate()
+        stop_loading(t)
         scan("DCIM/Video")
+        e = cek_err(err)
 
     elif response.lower() == "p":
         time.sleep(0.3)
@@ -259,13 +280,11 @@ elif user == "2":   # download video
 
         user_pref = vid_res()
         user_slct = choice_vid(user_pref, url)
-        done = False
-        t = threading.Thread(target=loading, args=("[↓] Mengunduh..",))
-        t.start()
-        user_slct.wait()
-        done = True
-        t.join()
+        t = start_loading("[↓] Mengunduh..")
+        out, err = user_slct.communicate()
+        stop_loading(t)
         scan("DCIM/Video")
+        e = cek_err(err)
 
     elif response.lower() == "x":
         print(thx)
@@ -284,13 +303,11 @@ elif user == "3":    # download audio
     if response.lower() == "n":
         i = "0"
         user_slct = choice_aud(i, url)
-        done = False
-        t = threading.Thread(target=loading, args=("[↓] Mengunduh..",))
-        t.start()
-        user_slct.wait()
-        done = True
-        t.join()
+        t = start_loading("[↓] Mengunduh..")
+        out, err = user_slct.communicate()
+        stop_loading(t)
         scan("YMusic")
+        e = cek_err(err)
 
     elif response.lower() =="p":
         time.sleep(0.3)
@@ -301,13 +318,11 @@ elif user == "3":    # download audio
 
         user_pref = aud_brt()
         user_slct = choice_aud(user_pref, url)
-        done = False
-        t = threading.Thread(target=loading, args=("[↓] Mengunduh..",))
-        t.start()
-        user_slct.wait()
-        done = True
-        t.join()
+        t = start_loading("[↓] Mengunduh..")
+        out, err = user_slct.wait()
+        stop_loading(t)
         scan("YMusic")
+        e = cek_err(err)
 
     elif response.lower() == "x":
         print(thx)

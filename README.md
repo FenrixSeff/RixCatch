@@ -1,15 +1,13 @@
 # RixCatch
 **Script Python** untuk mengunduh video, audio, atau thumbnail dari YouTube menggunakan yt-dlp. Dirancang untuk kemudahan dan efisiensi.
 
-
-## Feature
+## Features
 - Download video
 - Pilih audio bitrate sesuai kebutuhan (128–320 kbps)
 - Download thumbnail saja (format JPG/PNG)
 - User friendly
 
-
-## dependecis
+## Dependencies
 - Python 3
 - yt-dlp
 - colorama
@@ -17,29 +15,32 @@
 - termux-api (untuk scan media)
 - Termux dengan izin storage (`termux-setup-storage`)
 
-## Install dependecis
+## How to install RixCatch
 ```bash
-./requirements.sh```
+pkg install git
+git clone https://github.com/FenrixSeff/RixCatch.git
+cd RixCatch
+```
+
+## Install Dependencies
+```bash
+./requirements.sh
+```
 
 ## How to use
 ```bash
-python RixCatch.py```
-
+python RixCatch.py
+```
 Masukkan URL video YouTube, pilih opsi download (video, audio, thumbnail), lalu tunggu proses selesai.
 
-
 ## Notes
-
-Jika resolusi/bitrate tidak tersedia, akan otomatis disesuaikan ke
-yang tersedia.
-
-Folder otomatis dibuat di ~/storage/shared/DCIM/ dan ~/storage/shared/YMusic.
-
+- Jika resolusi/bitrate tidak tersedia, akan otomatis disesuaikan ke yang tersedia
+- Folder otomatis dibuat di:
+  - `~/storage/shared/DCIM/` (video/thumbnail)
+  - `~/storage/shared/YMusic/` (audio)
 
 ## License
-
 Open-source, bebas digunakan dan dimodifikasi.
 
 ## Authors
-
 Fenrix
