@@ -4,6 +4,7 @@ echo -e "\nUpdate package list..\n"
 pkg update
 
 echo -e "\nInstalling dependencis system..\n"
+pkg install -y python
 pkg install -y ffmpeg
 pkg install -y termux-api
 

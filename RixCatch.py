@@ -21,7 +21,7 @@ R = Style.RESET_ALL
 
 
 def loading(teks):  # Animasi loading
-    repeat = ["|", "/", "-", "\\"]
+    repeat = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"]
     f = 0
     while not done:
         print(f"\r{teks} {repeat[f % len(repeat)]} ", end="")
@@ -219,7 +219,7 @@ title = search.stdout.strip()
 if not title:
     print(
     r + "\n\nUps! Sepertinya ada masalah. Cek URL yang Anda masukkan "
-    "atau coba lagi nanti.\n" + R)
+    "atau coba lagi nanti\n" + R)
     exit()  # ← Jangan dihapus
 
 print("\n")
@@ -319,7 +319,7 @@ elif user == "3":    # download audio
         user_pref = aud_brt()
         user_slct = choice_aud(user_pref, url)
         t = start_loading("[↓] Mengunduh..")
-        out, err = user_slct.wait()
+        out, err = user_slct.communicate()
         stop_loading(t)
         scan("YMusic")
         e = cek_err(err)
